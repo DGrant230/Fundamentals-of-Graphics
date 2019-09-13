@@ -3,6 +3,34 @@
 #include <stdlib.h>
 #include <cstring>
 
+void PrintRowOrder(Raster r)
+{
+	for(int i = 0; i < r.GetWidth(); i++)
+	{
+		for(int j = 0; j < r.GetHeight(); j++)
+		{
+			Pixel p;
+			p = r.GetPixel(i, j);
+			printf("#%i, %i\n", i, j);
+			printf("%i %i %i\n\n", p.r, p.b, p.g);
+		}
+	}
+}
+
+void PrintColOrder(Raster r)
+{
+	for(int i = 0; i < r.GetHeight(); i++)
+	{
+		for(int j = 0; j < r.GetWidth(); j++)
+		{
+			Pixel p;
+			p = r.GetPixel(j, i);
+			printf("#%i, %i\n", j, i);
+			printf("%i %i %i\n\n", p.r, p.b, p.g);
+		}
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	if(argc > 1)
@@ -30,22 +58,21 @@ int main(int argc, char* argv[])
 	
 	printf("P3 %i %i 255\n", r.GetWidth(), r.GetHeight());
 	
-	for(int i = 0; i < r.GetWidth(); i++)
-	{
-		for(int j = 0; j < r.GetHeight(); j++)
-		{
-			Pixel p;
 #ifndef COLUMN_ORDER
-			p = r.GetPixel(i, j);
-			printf("#%i, %i\n", i, j);
+	PrintRowOrder(r);
 #else
-			p = r.GetPixel(j, i);
-			printf("#%i, %i\n", j, i);
+	PrintColOrder(r);
 #endif
-
-			printf("%i %i %i\n\n", p.r, p.b, p.g);
-		}
-	}
+	// for(int i = 0; i < r.GetWidth(); i++)
+	// {
+		// for(int j = 0; j < r.GetHeight(); j++)
+		// {
+			// Pixel p;
+			// p = r.GetPixel(i, j);
+			// printf("#%i, %i\n", i, j);
+			// printf("%i %i %i\n\n", p.r, p.b, p.g);
+		// }
+	// }
 	
 	return 0;
 }
