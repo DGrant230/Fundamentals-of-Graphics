@@ -30,6 +30,7 @@ public:
 	Pixel GetPixel(int x, int y);
 	void DrawLineDDA(int x0, int y0, int x1, int y1);
 	void DrawLineBresenham(int x0, int y0, int x1, int y1);
+	void DrawLineMidPoint(int x0, int y0, int x1, int y1);
 
 private:
 	int m_width;
