@@ -18,7 +18,7 @@ void PrintRowOrder(Raster r)
 	}
 }
 
-void PrintColOrder(Raster r)
+void PrintColumnOrder(Raster r)
 {
 	printf("#Printing Column Order\n\n");
 	for(int i = 0; i < r.GetHeight(); i++)
@@ -26,7 +26,7 @@ void PrintColOrder(Raster r)
 		for(int j = 0; j < r.GetWidth(); j++)
 		{
 			Pixel p;
-			p = r.GetPixel(i, j);
+			p = r.GetPixel(j, i);
 			printf("#%i, %i\n", j, i);
 			printf("%i %i %i\n\n", p.r, p.b, p.g);
 		}
@@ -48,14 +48,14 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	int x0 = 0, y0 = 0, x1 = 4, y1 = 16;
+	int x0 = 6, y0 = 4, x1 = 0, y1 = 1;
 	Raster r = { 20, 20 };
-	r.DrawLineDDA(x0, y0, x1, y1);
-	//r.DrawLineBresenham(x0 + 1, y0, x1 + 1, y1);
-	r.SetPixel(x0, y0, 255, 0, 0);
-	r.SetPixel(x1, y1, 255, 0, 0);
-	r.SetPixel(x0 + 1, y0, 255, 0, 0);
-	r.SetPixel(x1 + 1, y1, 255, 0, 0);
+	//r.DrawLineDDA(x0, y0 + 3, x1, y1 + 3);
+	r.DrawLineBresenham(x0, y0, x1, y1);
+	// r.SetPixel(x0, y0, 255, 0, 0);
+	// r.SetPixel(x1, y1, 255, 0, 0);
+	// r.SetPixel(x0 + 1, y0, 255, 0, 0);
+	// r.SetPixel(x1 + 1, y1, 255, 0, 0);
 
 
 
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
 	if(useRowOrder)
 		PrintRowOrder(r);
 	else
-		PrintColOrder(r);
+		PrintColumnOrder(r);
 	
 	return 0;
 }
