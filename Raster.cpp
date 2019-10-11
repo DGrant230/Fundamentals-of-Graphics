@@ -4,175 +4,149 @@
 #include <stdio.h>
 #include <algorithm>
 
-Raster::Raster(int width, int height)
+void Raster::SetPixel(int x, int y, int red, int blue, int green)
 {
-	m_width = width;
-	m_height = height;
-	p_pixels = new Pixel[width * height];
-}
-
-void Raster::SetPixel(int x, int y, int r, int b, int g)
-{
-	assert(x < m_width && y < m_height);
-	p_pixels[m_width * x + y] = Pixel{ r, b, g };
+	assert(x < width && y < height);
+	p_pixels[width * x + y] = Pixel{ red, blue, green };
 }
 
 Pixel Raster::GetPixel(int x, int y)
 {
-	assert(x < m_width && y < m_height);
+	assert(x < width && y < height);
 
-	return p_pixels[m_width * x + y];
+	return p_pixels[width * x + y];
 }
 
-void Raster::DrawLineDDA(int x0, int y0, int x1, int y1)
+void Raster::DrawLine(int x0, int y0, int x1, int y1, int red, int blue, int green)
 {
-	// Digital Differential Analyzer Algorithm	
-	float x = x0;
-	float y = y0;
+	if(x0 == x1)
+		DrawLineVertical(x0, y0, x1, y1, red, blue, green);
+	else if(y0 == y1)
+		DrawLineHorizontal(x0, y0, x1, y1, red, blue, green);
+	else if(abs(x1 - x0) == abs(y1 - y0))
+		DrawLineDiagonal(x0, y0, x1, y1, red, blue, green);
+	else
+		DrawLineBresenham(x0, y0, x1, y1, red, blue, green);
+}
 
-	int dx = x1 - x0;
-	int dy = y1 - y0;
+void Raster::DrawLine(int x0, int y0, int x1, int y1, Vector3 color)
+{
+	DrawLine(x0, y0, x1, y1, color.x, color.y, color.z);
+}
 
-	int steps = std::max(abs(dx), abs(dy));
+void Raster::DrawLine(Vector2 coord1, Vector2 coord2, int red, int blue, int green)
+{
+	DrawLine(coord1.x, coord1.y, coord2.x, coord2.y, red, blue, green);
+}
+void Raster::DrawLine(Vector2 coord1, Vector2 coord2, Vector3 color)
+{
+	DrawLine(coord1.x, coord1.y, coord2.x, coord2.y, color.x, color.y, color.z);
+}
 
-	float xinc = (float)dx / steps;
-	float yinc = (float)dy / steps;
 
-	for(int i = 0; i <= steps; i++)
+void Raster::DrawLineHorizontal(int x0, int y0, int x1, int y1, int red, int blue, int green)
+{
+	assert(y0 == y1);
+	
+	if(x0 > x1)
+		std::swap(x0, x1);
+	
+	for(int x = x0; x <= x1; x++)
+		SetPixel(x, y0, red, blue, green);
+}
+
+void Raster::DrawLineVertical(int x0, int y0, int x1, int y1, int red, int blue, int green)	
+{
+	assert(x0 == x1);
+	
+	if(y0 > y1)
+		std::swap(y0, y1);
+	
+	for(int y = y0; y <= y1; y++)
+		SetPixel(x0, y, red, blue, green);
+}
+
+void Raster::DrawLineDiagonal(int x0, int y0, int x1, int y1, int red, int blue, int green)
+{
+	int dx = abs(x1 - x0);
+	int dy = abs(y1 - y0);
+	
+	assert(dx == dy);
+	
+	for(int i = 0, x = x0, y = y0; i <= abs(dx); i++)
 	{
-		SetPixel(round(x), round(y), 255, 255, 255);
-		x += xinc;
-		y += yinc;
+		SetPixel(x, y, red, blue, green);
+		if(x < x1)
+			x++;
+		else
+			x--;
+		
+		if(y < y1)
+			y++;
+		else
+			y--;
 	}
 }
 
-void Raster::DrawLineBresenham(int x0, int y0, int x1, int y1)
-{		
-/* 	
-	Slope 
-	y = mx + b
-	y = (dy / dx)x + b
-	(dx)y = (dy)x + (dx)b
-	0 = (dy)x - (dx)y + (dx)b
+void Raster::DrawLineBresenham(int x0, int y0, int x1, int y1, int red, int blue, int green)
+{	
+	// Is the line steeper or flatter?
+	const bool steep = abs(y1 - y0) > abs(x1 - x0);
 	
-	f(x, y) = 0 = (dy)x - (dx)y + (dx)b
-	Starting point: f(x, y) = 0 -> Is directly on the line (it's one of the end points)
-	Next Point: f(x + 1, y + 0.5) = s
-	The value of s determines if the line above or below (x + 1, y + 0.5)
-	If positive, plot (x + 1, y + 1), else plot (x + 1, y)
-	
-	To avoid floating point arimetic, use a decision parameter instead of the value of s.
-	To get the first decision parameter:
-	D = f(x + 1, y + 1/2) - f(x, y)
-	D = (dy)(x + 1) - (dx)(y + 1/2) + (dx)b - (dy)x - (dx)y + (dx)b
-	D = (dy)x + dy - (dx)y + dx/2 + (dx)b - (dy)x - (dx)y + (dx)b
-	Cancel out: (dy)x, (dx)y, and (dx)b
-	Results in: dy - dx / 2 = 2 * dy - dx
-	D = 2 * dy - dx
-	
-	For subsequent decision parameter values, accumulate the difference of error
-	If D > 0 and abs(dx) > abs(dy), D = D - 2 * dx
-	If D > 0 and abs(dy) > abs(dx), D = D - 2 * dy
-	
-	To cover all cases of how the line is formed in different octants, we need to check
-	if to see if the line is longer than wider or vice versa to increment through. 
-	I = abs(dy) < abs(dx)
-	
-	If I = true, increment through the x axis. Otherwise, increment through the y axis.
-	
-	After determining which axis to use, ensure that the starting coordinate is less than the ending coordinate
-	on that axis.
-	Ex: If I = true, start = (5, 3), and end = (0, 2), switch the values of start and end.
-	
-	Lastly, check if the value of the delta of whatever is lowest and see if it's negative.
-	If so, that's the direction you'll be incrementing towards.
-	Ex: If x axis > y axis, check value of dy. If dy < 0, then the line is going downwards.
- */	
-	
-	// Avoiding two extra calculations.
-	SetPixel(x0, y0, 0, 255, 0);
-	SetPixel(x1, y1, 0, 255, 0);
-	
-	// Get deltas.
-	int dx = x1 - x0;
-	int dy = y1 - y0;
-	
-	// Is the line wider than longer?
-	bool isWider = false;
-	
-	if(abs(dx) > abs(dy))
-		isWider = true;
-	
-	// If the line is wider and the starting coordinate x value is larger than the ending coordinate x value,
-	// then swap the coordinates. Likewise if the line was longer than wider for the y values.
-	if((isWider && x0 > x1) || (!isWider && y0 > y1))
+	// If it's steep, flip the coordinates so that we can loop
+	// through the y axis. Otherwise, we'll loop through the x
+	// axis.
+	if(steep)
+	{
+		std::swap(x0, y0);
+		std::swap(x1, y1);
+	}
+
+	// Swap coordinate pairs so that we will always increase
+	// x when looping through the longest axis of the line.
+	if(x0 > x1)
 	{
 		std::swap(x0, x1);
 		std::swap(y0, y1);
-		dx = x1 - x0;
-		dy = y1 - y0;
 	}
-	
-	// While incrementing through the longer axis of the line, do we go the negative direction (left or down)
-	// for producing the next coordinate?
-	bool goNegativeDirection = false;
-	
-	if((isWider && dx < 0) || (!isWider && dy < 0))
-		goNegativeDirection = true;
-	
-	// The decision parameter.
-	int dp = 2 * dy - dx;
-	
-	if(isWider)
-	{
-		// If wider, incrememt through the x axis
-		for(int x = x0 + 1, y = y0; x < x1; x++)
-		{
-			if(dp > 0)
-			{
-				// 
-				y += goNegativeDirection ? -1 : 1;
-				dp -= 2 * dx;
-			}
-			
-			dp += 2 * dy;
-			SetPixel(x, y, 0, 255, 0);
-		}
-	}
-	else
-	{
-		// If longer, increment through the y axis
-		for(int y = y0 + 1, x = x0; y < y1; y++)
-		{
-			if(dp > 0)
-			{
-				x += goNegativeDirection ? -1 : 1;
-				dp -= 2 * dy;
-			}
-			
-			dp += 2 * dx;
-			SetPixel(x, y, 0, 255, 0);
-		}
-	}
-}
 
-void DrawLineMidPoint(int x0, int y0, int x1, int y1)
-{
-	// MidPoint Algorithm
-	// Slope-Intercept: y = mx + b => 0 = mx + b - y
-	// Slope: m = dy / dx => m = (y1 - y0)/(x1 - x0) : x1 > x0
-	// Implicit Equation: 0 = (dy / dx)x + b - y => 0 = (dy)x + b(dx) - y(dx)
-	// If F(x, y) = 0, point is on line; if < 0, point is above line; if > 0, point is below line
+	// Get deltas.
+	const float dx = x1 - x0;
+	const float dy = y1 - y0;
+
+	// The initial error offset.
+	float error = dx / 2.0f;
 	
-	// int dx = x1 - x0;
-	// int dy = y1 - y0;
+	// Based on the direction of the line and where we start,
+	// we need to move either left/right or up/down.
+	const int ystep = (y0 < y1) ? 1 : -1;
 	
-	// Set initial point
-	// int x = x0;
-	// int y = y0;
-	
-	// while(x <= x1)
-	// {
-		// int d = (dy * x) - (dy * y) + (dx + b);
-	// }
+	int y = (int)y0;
+
+	const int maxX = (int)x1;
+
+	for(int x=(int)x0; x<=maxX; x++)
+	{
+		// If it's steep, then we swap the x and y when setting,
+		// the pixel since we swapped it above. Otherwise, keep
+		// it the same.
+		if(steep)
+		{
+			SetPixel(y,x, red, blue, green);
+		}
+		else
+		{
+			SetPixel(x,y, red, blue, green);
+		}
+		
+		error -= abs(dy);
+		
+		// If the error goes below 0, then add to y and the error.
+		if(error < 0)
+		{
+			y += ystep;
+			error += abs(dx);
+		}
+	}
+
 }

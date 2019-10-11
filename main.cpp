@@ -3,32 +3,32 @@
 #include <stdlib.h>
 #include <cstring>
 
-void PrintRowOrder(Raster r)
+void PrintRowOrder(Raster raster)
 {
 	printf("#Printing Row Order\n\n");
-	for(int i = 0; i < r.GetWidth(); i++)
+	for(int i = 0; i < raster.GetWidth(); i++)
 	{
-		for(int j = 0; j < r.GetHeight(); j++)
+		for(int j = 0; j < raster.GetHeight(); j++)
 		{
-			Pixel p;
-			p = r.GetPixel(i, j);
+			Pixel pixel;
+			pixel = raster.GetPixel(i, j);
 			printf("#%i, %i\n", i, j);
-			printf("%i %i %i\n\n", p.r, p.b, p.g);
+			printf("%i %i %i\n\n", pixel.red, pixel.blue, pixel.green);
 		}
 	}
 }
 
-void PrintColumnOrder(Raster r)
+void PrintColumnOrder(Raster raster)
 {
 	printf("#Printing Column Order\n\n");
-	for(int i = 0; i < r.GetHeight(); i++)
+	for(int i = 0; i < raster.GetHeight(); i++)
 	{
-		for(int j = 0; j < r.GetWidth(); j++)
+		for(int j = 0; j < raster.GetWidth(); j++)
 		{
-			Pixel p;
-			p = r.GetPixel(j, i);
+			Pixel pixel;
+			pixel = raster.GetPixel(j, i);
 			printf("#%i, %i\n", j, i);
-			printf("%i %i %i\n\n", p.r, p.b, p.g);
+			printf("%i %i %i\n\n", pixel.red, pixel.blue, pixel.green);
 		}
 	}
 }
@@ -48,24 +48,30 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	int x0 = 6, y0 = 4, x1 = 0, y1 = 1;
-	Raster r = { 20, 20 };
-	//r.DrawLineDDA(x0, y0 + 3, x1, y1 + 3);
-	r.DrawLineBresenham(x0, y0, x1, y1);
-	// r.SetPixel(x0, y0, 255, 0, 0);
-	// r.SetPixel(x1, y1, 255, 0, 0);
-	// r.SetPixel(x0 + 1, y0, 255, 0, 0);
-	// r.SetPixel(x1 + 1, y1, 255, 0, 0);
-
+	int x0 = 0, y0 = 0, 
+		x1 = 0, y1 = 19, 
+		x2 = 19, y2 = 0,
+		x3 = 19, y3 = 19,
+		x4 = 10, y4 = 7,
+		x5 = 7, y5 = 10;
+		
+	Raster raster = { 20, 20 };
+	
+	raster.DrawLine(x0, y0, x1, y1, 255, 0, 0);		// Vertical line
+	raster.DrawLine(x0, y0, x2, y2, 0, 255, 0);  	// Horizontal line
+	raster.DrawLine(x0, y0, x3, y3, 0, 0, 255);  	// Diagonal line
+	raster.DrawLine(x0, y0, x4, y4, 255, 255, 255);  // Flatter line+
+	raster.DrawLine(x0, y0, x5, y5, 255, 255, 0);  	// Steeper line+
+	raster.DrawLine(x1, y1, x4, y4, 255, 0, 255);  	// Steeper line-
 
 
 	
-	printf("P3 %i %i 255\n", r.GetWidth(), r.GetHeight());
+	printf("P3 %i %i 255\n", raster.GetWidth(), raster.GetHeight());
 	
 	if(useRowOrder)
-		PrintRowOrder(r);
+		PrintRowOrder(raster);
 	else
-		PrintColumnOrder(r);
+		PrintColumnOrder(raster);
 	
 	return 0;
 }
