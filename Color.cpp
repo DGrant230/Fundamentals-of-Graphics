@@ -17,57 +17,51 @@ Color::Color(int red, int green, int blue) : red(red), green(green), blue(blue)
 Color Color::operator+(const Color& rhs) const
 {
 	Color color;
-	color.red = red + rhs.red;
-	color.green = green + rhs.green;
-	color.blue = blue + rhs.blue;
-	color.ClampHuesIfOutOfBoundaries();
+	color.SetRed(red + rhs.red);
+	color.SetGreen(green + rhs.green);
+	color.SetBlue(blue + rhs.blue);
 	return color;
 }
 
 Color Color::operator-(const Color& rhs) const
 {
 	Color color;
-	color.red = red - rhs.red;
-	color.green = green - rhs.green;
-	color.blue = blue - rhs.blue;
-	color.ClampHuesIfOutOfBoundaries();
+	color.SetRed(red - rhs.red);
+	color.SetGreen(green - rhs.green);
+	color.SetBlue(blue - rhs.blue);
 	return color;
 }
 
 Color Color::operator*(const int& scalar) const
 {
 	Color color;
-	color.red = red * scalar;
-	color.green = green * scalar;
-	color.blue = blue * scalar;
-	color.ClampHuesIfOutOfBoundaries();
+	color.SetRed(red * scalar);
+	color.SetGreen(green * scalar);
+	color.SetBlue(blue * scalar);
 	return color;
 }
 
 Color& Color::operator+=(const Color& rhs)
 {
-	red += rhs.red;
-	green += rhs.green;
-	blue += rhs.blue;
-	ClampHuesIfOutOfBoundaries();
+	SetRed(red + rhs.red);
+	SetGreen(green + rhs.green);
+	SetBlue(blue + rhs.blue);
 	return *this;
 }
 
 Color& Color::operator-=(const Color& rhs)
 {
-	red -= rhs.red;
-	green -= rhs.green;
-	blue -= rhs.blue;
-	ClampHuesIfOutOfBoundaries();
+	SetRed(red - rhs.red);
+	SetGreen(green - rhs.green);
+	SetBlue(blue - rhs.blue);
 	return *this;
 }
 
 Color& Color::operator*=(const int& scalar)
 {
-	red *= scalar;
-	green *= scalar;
-	blue *= scalar;
-	ClampHuesIfOutOfBoundaries();
+	SetRed(red * scalar);
+	SetGreen(green * scalar);
+	SetBlue(blue * scalar);
 	return *this;
 }
 

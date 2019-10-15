@@ -10,10 +10,10 @@ void PrintRowOrder(Raster raster)
 	{
 		for(int j = 0; j < raster.GetHeight(); j++)
 		{
-			Pixel pixel;
-			pixel = raster.GetPixel(i, j);
+			Color pixel;
+			pixel = raster.GetPixel({i, j});
 			printf("#%i, %i\n", i, j);
-			printf("%i %i %i\n\n", pixel.red, pixel.blue, pixel.green);
+			printf("%i %i %i\n\n", pixel.GetRed(), pixel.GetBlue(), pixel.GetGreen());
 		}
 	}
 }
@@ -25,10 +25,10 @@ void PrintColumnOrder(Raster raster)
 	{
 		for(int j = 0; j < raster.GetWidth(); j++)
 		{
-			Pixel pixel;
-			pixel = raster.GetPixel(j, i);
+			Color pixel;
+			pixel = raster.GetPixel({j, i});
 			printf("#%i, %i\n", j, i);
-			printf("%i %i %i\n\n", pixel.red, pixel.blue, pixel.green);
+			printf("%i %i %i\n\n", pixel.GetRed(), pixel.GetBlue(), pixel.GetGreen());
 		}
 	}
 }

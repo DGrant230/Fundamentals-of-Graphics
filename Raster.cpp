@@ -4,17 +4,21 @@
 #include <stdio.h>
 #include <algorithm>
 
-void Raster::SetPixel(int x, int y, int red, int blue, int green)
+void Raster::SetPixel(Vector2Int coordinate, Color color)
 {
+	int x = coordinate.x;
+	int y = coordinate.y;
 	assert(x < width && y < height);
-	p_pixels[width * x + y] = Pixel{ red, blue, green };
+	pixels[width * x + y] = color;
 }
 
-Pixel Raster::GetPixel(int x, int y)
+Color Raster::GetPixel(Vector2Int coordinate)
 {
+	int x = coordinate.x;
+	int y = coordinate.y;
 	assert(x < width && y < height);
 
-	return p_pixels[width * x + y];
+	return pixels[width * x + y];
 }
 
 void Raster::DrawLine(int x0, int y0, int x1, int y1, int red, int blue, int green)
@@ -29,18 +33,18 @@ void Raster::DrawLine(int x0, int y0, int x1, int y1, int red, int blue, int gre
 		DrawLineBresenham(x0, y0, x1, y1, red, blue, green);
 }
 
-void Raster::DrawLine(int x0, int y0, int x1, int y1, Vector3 color)
+void Raster::DrawLine(int x0, int y0, int x1, int y1, Color color)
 {
-	DrawLine(x0, y0, x1, y1, color.x, color.y, color.z);
+	DrawLine(x0, y0, x1, y1, color.GetRed(), color.GetGreen(), color.GetBlue());
 }
 
-void Raster::DrawLine(Vector2 coord1, Vector2 coord2, int red, int blue, int green)
+void Raster::DrawLine(Vector2Int coord1, Vector2Int coord2, int red, int blue, int green)
 {
 	DrawLine(coord1.x, coord1.y, coord2.x, coord2.y, red, blue, green);
 }
-void Raster::DrawLine(Vector2 coord1, Vector2 coord2, Vector3 color)
+void Raster::DrawLine(Vector2Int coord1, Vector2Int coord2, Color color)
 {
-	DrawLine(coord1.x, coord1.y, coord2.x, coord2.y, color.x, color.y, color.z);
+	DrawLine(coord1.x, coord1.y, coord2.x, coord2.y, color.GetRed(), color.GetGreen(), color.GetBlue());
 }
 
 
@@ -52,7 +56,7 @@ void Raster::DrawLineHorizontal(int x0, int y0, int x1, int y1, int red, int blu
 		std::swap(x0, x1);
 	
 	for(int x = x0; x <= x1; x++)
-		SetPixel(x, y0, red, blue, green);
+		SetPixel(Vector2Int(x, y0), Color(red, blue, green));
 }
 
 void Raster::DrawLineVertical(int x0, int y0, int x1, int y1, int red, int blue, int green)	
@@ -63,7 +67,7 @@ void Raster::DrawLineVertical(int x0, int y0, int x1, int y1, int red, int blue,
 		std::swap(y0, y1);
 	
 	for(int y = y0; y <= y1; y++)
-		SetPixel(x0, y, red, blue, green);
+		SetPixel(Vector2Int(x0, y), Color(red, blue, green));
 }
 
 void Raster::DrawLineDiagonal(int x0, int y0, int x1, int y1, int red, int blue, int green)
@@ -75,7 +79,7 @@ void Raster::DrawLineDiagonal(int x0, int y0, int x1, int y1, int red, int blue,
 	
 	for(int i = 0, x = x0, y = y0; i <= abs(dx); i++)
 	{
-		SetPixel(x, y, red, blue, green);
+		SetPixel(Vector2Int(x, y), Color(red, blue, green));
 		if(x < x1)
 			x++;
 		else
@@ -128,15 +132,15 @@ void Raster::DrawLineBresenham(int x0, int y0, int x1, int y1, int red, int blue
 	for(int x=(int)x0; x<=maxX; x++)
 	{
 		// If it's steep, then we swap the x and y when setting,
-		// the pixel since we swapped it above. Otherwise, keep
+		// the Color since we swapped it above. Otherwise, keep
 		// it the same.
 		if(steep)
 		{
-			SetPixel(y,x, red, blue, green);
+			SetPixel(Vector2Int(y,x), Color(red, blue, green));
 		}
 		else
 		{
-			SetPixel(x,y, red, blue, green);
+			SetPixel(Vector2Int(x,y), Color(red, blue, green));
 		}
 		
 		error -= abs(dy);
