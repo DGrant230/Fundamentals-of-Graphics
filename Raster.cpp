@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <algorithm>
 
+Raster::Raster(int width, int height) : width(width), height(height), pixels(new Color[width * height]){}
+
 void Raster::SetPixel(Vector2Int coordinate, Color color)
 {
 	int x = coordinate.x;
@@ -21,57 +23,62 @@ Color Raster::GetPixel(Vector2Int coordinate)
 	return pixels[width * x + y];
 }
 
-void Raster::DrawLine(int x0, int y0, int x1, int y1, int red, int blue, int green)
+void Raster::DrawLine(Vector2Int startCoordinate, Vector2Int endCoordinate, Color color)
 {
+	int x0 = startCoordinate.x;
+	int y0 = startCoordinate.y;
+	int x1 = endCoordinate.x;
+	int y1 = endCoordinate.y;
+	
 	if(x0 == x1)
-		DrawLineVertical(x0, y0, x1, y1, red, blue, green);
+		DrawLineVertical(startCoordinate, endCoordinate, color);
 	else if(y0 == y1)
-		DrawLineHorizontal(x0, y0, x1, y1, red, blue, green);
+		DrawLineHorizontal(startCoordinate, endCoordinate, color);
 	else if(abs(x1 - x0) == abs(y1 - y0))
-		DrawLineDiagonal(x0, y0, x1, y1, red, blue, green);
+		DrawLineDiagonal(startCoordinate, endCoordinate, color);
 	else
-		DrawLineBresenham(x0, y0, x1, y1, red, blue, green);
+		DrawLineBresenham(startCoordinate, endCoordinate, color);
 }
 
-void Raster::DrawLine(int x0, int y0, int x1, int y1, Color color)
+void Raster::DrawLineHorizontal(Vector2Int startCoordinate, Vector2Int endCoordinate, Color color)
 {
-	DrawLine(x0, y0, x1, y1, color.GetRed(), color.GetGreen(), color.GetBlue());
-}
-
-void Raster::DrawLine(Vector2Int coord1, Vector2Int coord2, int red, int blue, int green)
-{
-	DrawLine(coord1.x, coord1.y, coord2.x, coord2.y, red, blue, green);
-}
-void Raster::DrawLine(Vector2Int coord1, Vector2Int coord2, Color color)
-{
-	DrawLine(coord1.x, coord1.y, coord2.x, coord2.y, color.GetRed(), color.GetGreen(), color.GetBlue());
-}
-
-
-void Raster::DrawLineHorizontal(int x0, int y0, int x1, int y1, int red, int blue, int green)
-{
+	int x0 = startCoordinate.x;
+	int y0 = startCoordinate.y;
+	int x1 = endCoordinate.x;
+	int y1 = endCoordinate.y;
+	
 	assert(y0 == y1);
 	
 	if(x0 > x1)
 		std::swap(x0, x1);
 	
 	for(int x = x0; x <= x1; x++)
-		SetPixel(Vector2Int(x, y0), Color(red, blue, green));
+		SetPixel(Vector2Int(x, y0), color);
 }
 
-void Raster::DrawLineVertical(int x0, int y0, int x1, int y1, int red, int blue, int green)	
+void Raster::DrawLineVertical(Vector2Int startCoordinate, Vector2Int endCoordinate, Color color)	
 {
+	int x0 = startCoordinate.x;
+	int y0 = startCoordinate.y;
+	int x1 = endCoordinate.x;
+	int y1 = endCoordinate.y;
+
 	assert(x0 == x1);
 	
 	if(y0 > y1)
 		std::swap(y0, y1);
 	
 	for(int y = y0; y <= y1; y++)
-		SetPixel(Vector2Int(x0, y), Color(red, blue, green));
+		SetPixel(Vector2Int(x0, y), color);
 }
 
-void Raster::DrawLineDiagonal(int x0, int y0, int x1, int y1, int red, int blue, int green)
+void Raster::DrawLineDiagonal(Vector2Int startCoordinate, Vector2Int endCoordinate, Color color)
 {
+	int x0 = startCoordinate.x;
+	int y0 = startCoordinate.y;
+	int x1 = endCoordinate.x;
+	int y1 = endCoordinate.y;
+	
 	int dx = abs(x1 - x0);
 	int dy = abs(y1 - y0);
 	
@@ -79,7 +86,7 @@ void Raster::DrawLineDiagonal(int x0, int y0, int x1, int y1, int red, int blue,
 	
 	for(int i = 0, x = x0, y = y0; i <= abs(dx); i++)
 	{
-		SetPixel(Vector2Int(x, y), Color(red, blue, green));
+		SetPixel(Vector2Int(x, y), color);
 		if(x < x1)
 			x++;
 		else
@@ -92,8 +99,13 @@ void Raster::DrawLineDiagonal(int x0, int y0, int x1, int y1, int red, int blue,
 	}
 }
 
-void Raster::DrawLineBresenham(int x0, int y0, int x1, int y1, int red, int blue, int green)
+void Raster::DrawLineBresenham(Vector2Int startCoordinate, Vector2Int endCoordinate, Color color)
 {	
+	int x0 = startCoordinate.x;
+	int y0 = startCoordinate.y;
+	int x1 = endCoordinate.x;
+	int y1 = endCoordinate.y;
+	
 	// Is the line steeper or flatter?
 	const bool steep = abs(y1 - y0) > abs(x1 - x0);
 	
@@ -136,11 +148,11 @@ void Raster::DrawLineBresenham(int x0, int y0, int x1, int y1, int red, int blue
 		// it the same.
 		if(steep)
 		{
-			SetPixel(Vector2Int(y,x), Color(red, blue, green));
+			SetPixel(Vector2Int(y,x), color);
 		}
 		else
 		{
-			SetPixel(Vector2Int(x,y), Color(red, blue, green));
+			SetPixel(Vector2Int(x,y), color);
 		}
 		
 		error -= abs(dy);

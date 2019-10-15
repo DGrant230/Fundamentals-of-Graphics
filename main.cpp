@@ -57,12 +57,12 @@ int main(int argc, char* argv[])
 		
 	Raster raster = { 20, 20 };
 	
-	raster.DrawLine(x0, y0, x1, y1, 255, 0, 0);		// Vertical line
-	raster.DrawLine(x0, y0, x2, y2, 0, 255, 0);  	// Horizontal line
-	raster.DrawLine(x0, y0, x3, y3, 0, 0, 255);  	// Diagonal line
-	raster.DrawLine(x0, y0, x4, y4, 255, 255, 255);  // Flatter line+
-	raster.DrawLine(x0, y0, x5, y5, 255, 255, 0);  	// Steeper line+
-	raster.DrawLine(x1, y1, x4, y4, 255, 0, 255);  	// Steeper line-
+	raster.DrawLine({x0, y0}, {x1, y1}, {255, 0, 0});		// Vertical line
+	raster.DrawLine({x0, y0}, {x2, y2}, {0, 255, 0});  	// Horizontal line
+	raster.DrawLine({x0, y0}, {x3, y3}, {0, 0, 255});  	// Diagonal line
+	raster.DrawLine({x0, y0}, {x4, y4}, {255, 255, 255});  // Flatter line+
+	raster.DrawLine({x0, y0}, {x5, y5}, {255, 255, 0});  	// Steeper line+
+	raster.DrawLine({x1, y1}, {x4, y4}, {255, 0, 255});  	// Steeper line-
 
 
 	
