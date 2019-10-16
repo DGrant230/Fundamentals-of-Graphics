@@ -1,32 +1,33 @@
-#include "Raster.h"
+#include "RasterDisplay.h"
+#include "Rasterizer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
 
-void PrintRowOrder(Raster raster)
+void PrintRowOrder(RasterDisplay rasterDisplay)
 {
 	printf("#Printing Row Order\n\n");
-	for(int i = 0; i < raster.GetWidth(); i++)
+	for(int i = 0; i < rasterDisplay.GetWidth(); i++)
 	{
-		for(int j = 0; j < raster.GetHeight(); j++)
+		for(int j = 0; j < rasterDisplay.GetHeight(); j++)
 		{
 			Color pixel;
-			pixel = raster.GetPixel({i, j});
+			pixel = rasterDisplay.GetPixel({i, j});
 			printf("#%i, %i\n", i, j);
 			printf("%i %i %i\n\n", pixel.GetRed(), pixel.GetBlue(), pixel.GetGreen());
 		}
 	}
 }
 
-void PrintColumnOrder(Raster raster)
+void PrintColumnOrder(RasterDisplay rasterDisplay)
 {
 	printf("#Printing Column Order\n\n");
-	for(int i = 0; i < raster.GetHeight(); i++)
+	for(int i = 0; i < rasterDisplay.GetHeight(); i++)
 	{
-		for(int j = 0; j < raster.GetWidth(); j++)
+		for(int j = 0; j < rasterDisplay.GetWidth(); j++)
 		{
 			Color pixel;
-			pixel = raster.GetPixel({j, i});
+			pixel = rasterDisplay.GetPixel({j, i});
 			printf("#%i, %i\n", j, i);
 			printf("%i %i %i\n\n", pixel.GetRed(), pixel.GetBlue(), pixel.GetGreen());
 		}
@@ -55,23 +56,23 @@ int main(int argc, char* argv[])
 		x4 = 10, y4 = 7,
 		x5 = 7, y5 = 10;
 		
-	Raster raster = { 20, 20 };
-	
-	raster.DrawLine({x0, y0}, {x1, y1}, {255, 0, 0});		// Vertical line
-	raster.DrawLine({x0, y0}, {x2, y2}, {0, 255, 0});  	// Horizontal line
-	raster.DrawLine({x0, y0}, {x3, y3}, {0, 0, 255});  	// Diagonal line
-	raster.DrawLine({x0, y0}, {x4, y4}, {255, 255, 255});  // Flatter line+
-	raster.DrawLine({x0, y0}, {x5, y5}, {255, 255, 0});  	// Steeper line+
-	raster.DrawLine({x1, y1}, {x4, y4}, {255, 0, 255});  	// Steeper line-
+	RasterDisplay rasterDisplay = { 20, 20 };
+	Rasterizer rasterizer = { &rasterDisplay };
+	rasterizer.DrawLine({x0, y0}, {x1, y1}, {255, 0, 0});		// Vertical line
+	rasterizer.DrawLine({x0, y0}, {x2, y2}, {0, 255, 0});  	// Horizontal line
+	rasterizer.DrawLine({x0, y0}, {x3, y3}, {0, 0, 255});  	// Diagonal line
+	rasterizer.DrawLine({x0, y0}, {x4, y4}, {255, 255, 255});  // Flatter line+
+	rasterizer.DrawLine({x0, y0}, {x5, y5}, {255, 255, 0});  	// Steeper line+
+	rasterizer.DrawLine({x1, y1}, {x4, y4}, {255, 0, 255});  	// Steeper line-
 
 
 	
-	printf("P3 %i %i 255\n", raster.GetWidth(), raster.GetHeight());
+	printf("P3 %i %i 255\n", rasterDisplay.GetWidth(), rasterDisplay.GetHeight());
 	
 	if(useRowOrder)
-		PrintRowOrder(raster);
+		PrintRowOrder(rasterDisplay);
 	else
-		PrintColumnOrder(raster);
+		PrintColumnOrder(rasterDisplay);
 	
 	return 0;
 }
