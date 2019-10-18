@@ -9,12 +9,14 @@ class PPMFile
 {
 private:
 	std::string fileName;
-	std::ofstream ppmFile;
 
 public:
 	PPMFile() = delete;
 	PPMFile(std::string fileName);
-	void WriteFromRasterDisplay(const RasterDisplay* rasterDisplay);
+	void WriteFromRasterDisplay(RasterDisplay* rasterDisplay);
 	RasterDisplay ReadIntoRasterDisplay();
+
+private:
+	
 };
 #endif

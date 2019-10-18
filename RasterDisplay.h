@@ -18,10 +18,10 @@ public:
 	RasterDisplay() = delete;
 	RasterDisplay(int width, int height);
 		
-	int GetWidth() { return width; }
-	int GetHeight() { return height; }
+	int GetWidth() const { return width; }
+	int GetHeight() const { return height; }
 	void SetPixel(Vector2Int coordinate, Color color = { 255, 255, 255 });
-	Color GetPixel(Vector2Int coordinate);
+	Color GetPixel (Vector2Int coordinate);
 		
 private:
 	void ThrowIfCoordinateIsOff(Vector2Int coordinate);

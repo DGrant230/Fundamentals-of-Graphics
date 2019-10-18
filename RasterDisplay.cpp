@@ -16,7 +16,7 @@ void RasterDisplay::SetPixel(Vector2Int coordinate, Color color)
 	pixels[width * x + y] = color;
 }
 
-Color RasterDisplay::GetPixel(Vector2Int coordinate)
+Color RasterDisplay::GetPixel (Vector2Int coordinate)
 {
 	ThrowIfCoordinateIsOff(coordinate);
 	int x = coordinate.x;
