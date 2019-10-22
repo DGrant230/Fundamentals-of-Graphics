@@ -13,10 +13,11 @@ private:
 public:
 	PPMFile() = delete;
 	PPMFile(std::string fileName);
+	static PPMFile CreatePPMFile(std::string filename);
 	void WriteFromRasterDisplay(RasterDisplay* rasterDisplay);
 	RasterDisplay ReadIntoRasterDisplay();
 
 private:
-	
+
 };
 #endif

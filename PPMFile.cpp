@@ -1,19 +1,19 @@
 #include "PPMFile.h"
+#include <filesystem>
+#include <sys/stat.h>
+#include <assert.h>
 
 PPMFile::PPMFile(std::string fileName) 
 { 
-	// Dot = -1, Slash = -1 -> "" | " " | "x"
-	// Dot = x, Slash = -1 -> "." | ".x" | "x."
-	// Dot = -1, Slash = x -> "/" | "/x" | "x/"
-	// Dot = x, Slash = y -> "./" | "./x" | "x/." | "x/y."
-	size_t dotPosition = fileName.find_last_of(".");
-	size_t slashPosition = fileName.find_last_of('//');
-	printf("Dot Pos: %i\n", dotPosition);
-	printf("Slash Pos: %i\n", slashPosition);
-	std::string fileNameWithoutType = fileName.substr(0, dotPosition);
-	std::string fileNameWithType = fileNameWithoutType + ".ppm";
-	this->fileName = fileNameWithType;
-	printf("%s\n", this->fileName.c_str());
+
+}
+
+PPMFile PPMFile::CreatePPMFile(std::string filename)
+{
+	printf("Filename: %s\n", filename.c_str());
+	std::filesystem::path filePath (filename);
+	assert(filePath.extension().generic_string() == ".ppm");
+	return PPMFile(filePath.generic_string());
 }
 
 void PPMFile::WriteFromRasterDisplay(RasterDisplay* rasterDisplay)
