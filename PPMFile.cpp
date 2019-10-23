@@ -3,22 +3,37 @@
 #include <sys/stat.h>
 #include <assert.h>
 
-PPMFile::PPMFile(std::string fileName) 
+PPMFile::PPMFile(std::string filename) 
 { 
 
 }
 
 PPMFile PPMFile::CreatePPMFile(std::string filename)
-{
-	printf("Filename: %s\n", filename.c_str());
-	std::filesystem::path filePath (filename);
-	assert(filePath.extension().generic_string() == ".ppm");
-	return PPMFile(filePath.generic_string());
+{	
+	std::filesystem::path absoluteFilepath = GetAbsoluteFilePath(std::filesystem::path(filename));
+	printf("%s\n", absoluteFilepath.generic_string().c_str());
+	std::filesystem::path directoryPath = GetDirectoryPath(absoluteFilepath);
+	printf("%s\n", directoryPath.generic_string().c_str());
+	bool directoryExists = DoesDirectoryPathExist(directoryPath);
+	directoryExists ? printf("Directory Exist\n") : printf("Directory Does Not Exist\n");
+	if(!directoryExists)
+		return PPMFile("");
+
+	bool hasExtension = DoesFileHaveExtension(absoluteFilepath);
+	if(!hasExtension || (hasExtension && !IsPPMFile(absoluteFilepath)))
+		absoluteFilepath.replace_extension(".ppm");
+
+	bool fileExist = DoesFilePathExist(absoluteFilepath);
+	if(fileExist)
+		absoluteFilepath = CreateCopyWithNumberAppended(absoluteFilepath);
+
+	printf("Final path: %s\n\n", absoluteFilepath.generic_string().c_str());
+	return PPMFile(absoluteFilepath.generic_string());
 }
 
 void PPMFile::WriteFromRasterDisplay(RasterDisplay* rasterDisplay)
 {
-	std::ofstream outputFile(fileName);
+	std::ofstream outputFile(filename);
 	if(outputFile.is_open())
 	{
 		std::string rasterWidth = std::to_string(rasterDisplay->GetWidth());
@@ -47,4 +62,55 @@ void PPMFile::WriteFromRasterDisplay(RasterDisplay* rasterDisplay)
 		outputFile.flush();
 		outputFile.close();
 	}
+}
+
+std::filesystem::path PPMFile::GetAbsoluteFilePath(std::filesystem::path filePath)
+{
+	return std::filesystem::absolute(filePath);
+}
+
+std::filesystem::path PPMFile::GetDirectoryPath(std::filesystem::path filePath)
+{
+	return filePath.parent_path();
+}
+
+bool PPMFile::DoesDirectoryPathExist(std::filesystem::path directoryPath)
+{
+	return std::filesystem::is_directory(directoryPath) && std::filesystem::exists(directoryPath);
+}
+
+bool PPMFile::DoesFileHaveExtension(std::filesystem::path filePath)
+{
+	return filePath.has_extension();
+}
+
+bool PPMFile::IsPPMFile(std::filesystem::path filePath)
+{
+	return filePath.extension().generic_string() == ".ppm";
+}
+
+bool PPMFile::DoesFilePathExist(std::filesystem::path filePath)
+{
+	return std::filesystem::is_regular_file(filePath) && std::filesystem::exists(filePath);
+}
+
+std::filesystem::path PPMFile::CreateCopyWithNumberAppended(std::filesystem::path filePath)
+{
+	int appendage = 1;
+	while(true)
+	{
+		std::string absFilepathWithAppendage = AppendCopyNumber(filePath, appendage);
+		if(!DoesFilePathExist(absFilepathWithAppendage))
+		{	
+			return std::filesystem::path(absFilepathWithAppendage);
+		}
+		appendage++;
+	}
+}
+
+std::string PPMFile::AppendCopyNumber(std::filesystem::path filePath, int copyNumber)
+{
+	std::string filePathName = filePath.generic_string();
+	filePathName.insert(filePathName.find_last_of('.'), "-Copy(" + std::to_string(copyNumber) + ")");
+	return filePathName;
 }

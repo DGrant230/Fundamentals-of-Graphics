@@ -72,15 +72,20 @@ int main(int argc, char* argv[])
 	rasterizer.DrawLine({x1, y1}, {x4, y4}, {255, 0, 255});  	// Steeper line-
 	
 	PPMFile ppmFile = PPMFile::CreatePPMFile("");
+	ppmFile = PPMFile::CreatePPMFile("../B/A");
+	ppmFile = PPMFile:: CreatePPMFile("/A/A.ppm");
 	ppmFile = PPMFile::CreatePPMFile("A");
-	ppmFile = PPMFile::CreatePPMFile("A.txt");
 	ppmFile = PPMFile::CreatePPMFile("A.ppm");
-	ppmFile = PPMFile::CreatePPMFile("..\\A");
-	ppmFile = PPMFile::CreatePPMFile("..\\A.txt");
-	ppmFile = PPMFile::CreatePPMFile("..\\A.ppm");
-	ppmFile = PPMFile::CreatePPMFile("C:\\Users\\grantda18\\Documents\\C++ Projects");
-	ppmFile = PPMFile::CreatePPMFile("C:\\Users\\grantda18\\Documents\\C++ Projects\\A.ppm");
-	ppmFile = PPMFile::CreatePPMFile("..\\A.txt.ppm");
+	ppmFile = PPMFile::CreatePPMFile("B");
+	ppmFile = PPMFile::CreatePPMFile("B(1)");
+	ppmFile = PPMFile::CreatePPMFile("B(1).ppm");
+	// ppmFile = PPMFile::CreatePPMFile("A.ppm");
+	// ppmFile = PPMFile::CreatePPMFile("..\\A");
+	// ppmFile = PPMFile::CreatePPMFile("..\\A.txt");
+	// ppmFile = PPMFile::CreatePPMFile("..\\A.ppm");
+	// ppmFile = PPMFile::CreatePPMFile("C:\\Users\\grantda18\\Documents\\C++ Projects");
+	// ppmFile = PPMFile::CreatePPMFile("C:\\Users\\grantda18\\Documents\\C++ Projects\\A.ppm");
+	// ppmFile = PPMFile::CreatePPMFile("..\\A.txt.ppm");
 
 	return 0;
 }
