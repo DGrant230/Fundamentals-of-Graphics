@@ -1,67 +1,51 @@
 #include "PPMFile.h"
 #include <filesystem>
-#include <sys/stat.h>
-#include <assert.h>
+#include <chrono>
+#include <iostream>
 
-PPMFile::PPMFile(std::string filename) 
-{ 
-
-}
+PPMFile::PPMFile(std::string filename) : filename(filename) { }
 
 PPMFile PPMFile::CreatePPMFile(std::string filename)
 {	
 	std::filesystem::path absoluteFilepath = GetAbsoluteFilePath(std::filesystem::path(filename));
-	printf("%s\n", absoluteFilepath.generic_string().c_str());
 	std::filesystem::path directoryPath = GetDirectoryPath(absoluteFilepath);
-	printf("%s\n", directoryPath.generic_string().c_str());
-	bool directoryExists = DoesDirectoryPathExist(directoryPath);
-	directoryExists ? printf("Directory Exist\n") : printf("Directory Does Not Exist\n");
-	if(!directoryExists)
+
+	if(!DoesDirectoryPathExist(directoryPath))
 		return PPMFile("");
 
 	bool hasExtension = DoesFileHaveExtension(absoluteFilepath);
 	if(!hasExtension || (hasExtension && !IsPPMFile(absoluteFilepath)))
-		absoluteFilepath.replace_extension(".ppm");
+		MakeFileExtensionPPM(absoluteFilepath);
 
-	bool fileExist = DoesFilePathExist(absoluteFilepath);
-	if(fileExist)
-		absoluteFilepath = CreateCopyWithNumberAppended(absoluteFilepath);
+	if(DoesFilePathExist(absoluteFilepath))
+		AppendCopyNumberToFile(absoluteFilepath);
 
-	printf("Final path: %s\n\n", absoluteFilepath.generic_string().c_str());
 	return PPMFile(absoluteFilepath.generic_string());
 }
 
 void PPMFile::WriteFromRasterDisplay(RasterDisplay* rasterDisplay)
 {
+	std::string ppmData;
+	ppmData += CreatePPMHeader(rasterDisplay);
+
+	for(int i = 0; i < rasterDisplay->GetHeight(); i++)
+	{
+		for(int j = 0; j < rasterDisplay->GetWidth(); j++)
+		{
+			Color pixel;
+			pixel = rasterDisplay->GetPixel({j, i});
+			ppmData += std::to_string(pixel.GetRed()) + " " +
+				std::to_string(pixel.GetBlue()) + " " +
+				std::to_string(pixel.GetGreen()) + "\n";
+		}
+	}
+
 	std::ofstream outputFile(filename);
 	if(outputFile.is_open())
-	{
-		std::string rasterWidth = std::to_string(rasterDisplay->GetWidth());
-		std::string rasterHeight = std::to_string(rasterDisplay->GetHeight());
-		std::string ppmHeader = "P3 " + rasterWidth + " " + rasterHeight + " 255";
-		outputFile << ppmHeader << std::endl;
-
-		std::string ppmData;
-		int totalPixels = rasterDisplay->GetWidth() * rasterDisplay->GetHeight();
-		int maxCharacterPerLine = 12;	// Ex->255 255 255\n
-		ppmData.reserve(totalPixels * maxCharacterPerLine);
-
-		for(int i = 0; i < rasterDisplay->GetHeight(); i++)
-		{
-			for(int j = 0; j < rasterDisplay->GetWidth(); j++)
-			{
-				Color pixel;
-				pixel = rasterDisplay->GetPixel({j, i});
-				ppmData += std::to_string(pixel.GetRed()) + " " +
-					std::to_string(pixel.GetBlue()) + " " +
-					std::to_string(pixel.GetGreen()) + "\n";
-			}
-		}
-
 		outputFile << ppmData;
-		outputFile.flush();
-		outputFile.close();
-	}
+	outputFile.flush();
+	outputFile.close();
+
 }
 
 std::filesystem::path PPMFile::GetAbsoluteFilePath(std::filesystem::path filePath)
@@ -89,28 +73,36 @@ bool PPMFile::IsPPMFile(std::filesystem::path filePath)
 	return filePath.extension().generic_string() == ".ppm";
 }
 
+void PPMFile::MakeFileExtensionPPM(std::filesystem::path& filePath)
+{
+	filePath.replace_extension(".ppm");
+}
+
 bool PPMFile::DoesFilePathExist(std::filesystem::path filePath)
 {
 	return std::filesystem::is_regular_file(filePath) && std::filesystem::exists(filePath);
 }
 
-std::filesystem::path PPMFile::CreateCopyWithNumberAppended(std::filesystem::path filePath)
+void PPMFile::AppendCopyNumberToFile(std::filesystem::path& filePath)
 {
-	int appendage = 1;
+	int copyNumber = 1;
 	while(true)
 	{
-		std::string absFilepathWithAppendage = AppendCopyNumber(filePath, appendage);
-		if(!DoesFilePathExist(absFilepathWithAppendage))
+		std::string fileCopy = filePath.generic_string();
+		fileCopy.insert(fileCopy.find_last_of('.'), "-Copy(" + std::to_string(copyNumber) + ")");
+
+		if(!DoesFilePathExist(fileCopy))
 		{	
-			return std::filesystem::path(absFilepathWithAppendage);
+			filePath = std::filesystem::path(fileCopy);
+			return;
 		}
-		appendage++;
+		copyNumber++;
 	}
 }
 
-std::string PPMFile::AppendCopyNumber(std::filesystem::path filePath, int copyNumber)
+std::string PPMFile::CreatePPMHeader(RasterDisplay* rasterDisplay)
 {
-	std::string filePathName = filePath.generic_string();
-	filePathName.insert(filePathName.find_last_of('.'), "-Copy(" + std::to_string(copyNumber) + ")");
-	return filePathName;
+	std::string rasterWidth = std::to_string(rasterDisplay->GetWidth());
+	std::string rasterHeight = std::to_string(rasterDisplay->GetHeight());
+	return "P3 " + rasterWidth + " " + rasterHeight + " 255\n";
 }

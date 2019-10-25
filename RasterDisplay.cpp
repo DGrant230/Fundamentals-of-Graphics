@@ -8,6 +8,16 @@
 
 RasterDisplay::RasterDisplay(int width, int height) : width(width), height(height), pixels(new Color[width * height]) { }
 
+int RasterDisplay::GetWidth()
+{
+	return width;
+}
+
+int RasterDisplay::GetHeight()
+{
+	return height;
+}
+
 void RasterDisplay::SetPixel(Vector2Int coordinate, Color color)
 {
 	ThrowIfCoordinateIsOff(coordinate);
