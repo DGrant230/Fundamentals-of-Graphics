@@ -7,6 +7,7 @@
 #include <cstring>
 #include <string>
 #include <fstream>
+#include <iostream>
 
 void PrintRowOrder(RasterDisplay rasterDisplay, std::ofstream* file)
 {
@@ -64,14 +65,14 @@ int main(int argc, char* argv[])
 		
 	RasterDisplay rasterDisplay = { 20, 20 };
 	Rasterizer rasterizer = { &rasterDisplay };
-	// rasterizer.DrawLine({x0, y0}, {x1, y1}, {255, 0, 0});		// Vertical line
-	// rasterizer.DrawLine({x0, y0}, {x2, y2}, {0, 255, 0});  	// Horizontal line
-	// rasterizer.DrawLine({x0, y0}, {x3, y3}, {0, 0, 255});  	// Diagonal line
-	// rasterizer.DrawLine({x0, y0}, {x4, y4}, {255, 255, 255});  // Flatter line+
-	// rasterizer.DrawLine({x0, y0}, {x5, y5}, {255, 255, 0});  	// Steeper line+
-	// rasterizer.DrawLine({x1, y1}, {x4, y4}, {255, 0, 255});  	// Steeper line-
+	rasterizer.DrawLine({x0, y0}, {x1, y1}, {255, 0, 0});		// Vertical line
+	rasterizer.DrawLine({x0, y0}, {x2, y2}, {0, 255, 0});  	// Horizontal line
+	rasterizer.DrawLine({x0, y0}, {x3, y3}, {0, 0, 255});  	// Diagonal line
+	rasterizer.DrawLine({x0, y0}, {x4, y4}, {255, 255, 255});  // Flatter line+
+	rasterizer.DrawLine({x0, y0}, {x5, y5}, {255, 255, 0});  	// Steeper line+
+	rasterizer.DrawLine({x1, y1}, {x4, y4}, {255, 0, 255});  	// Steeper line-
 	
-	PPMFile ppmFile = PPMFile::CreatePPMFile("Test");
-	ppmFile.WriteFromRasterDisplay(&rasterDisplay);
+	PPMFile ppmFile = PPMFile::CreatePPMFile("./");
+	ppmFile.WriteFromRasterDisplay(rasterDisplay);
 	return 0;
 }

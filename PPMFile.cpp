@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <chrono>
 #include <iostream>
+#include <exception>
 
 PPMFile::PPMFile(std::string filename) : filename(filename) { }
 
@@ -18,34 +19,22 @@ PPMFile PPMFile::CreatePPMFile(std::string filename)
 		MakeFileExtensionPPM(absoluteFilepath);
 
 	if(DoesFilePathExist(absoluteFilepath))
-		AppendCopyNumberToFile(absoluteFilepath);
+		AppendCopyNumberToFilename(absoluteFilepath);
 
 	return PPMFile(absoluteFilepath.generic_string());
 }
 
-void PPMFile::WriteFromRasterDisplay(RasterDisplay* rasterDisplay)
+void PPMFile::WriteFromRasterDisplay(RasterDisplay& rasterDisplay)
 {
-	std::string ppmData;
-	ppmData += CreatePPMHeader(rasterDisplay);
-
-	for(int i = 0; i < rasterDisplay->GetHeight(); i++)
-	{
-		for(int j = 0; j < rasterDisplay->GetWidth(); j++)
-		{
-			Color pixel;
-			pixel = rasterDisplay->GetPixel({j, i});
-			ppmData += std::to_string(pixel.GetRed()) + " " +
-				std::to_string(pixel.GetBlue()) + " " +
-				std::to_string(pixel.GetGreen()) + "\n";
-		}
-	}
-
+	std::string ppmData = BuildPPMData(rasterDisplay);
+	
 	std::ofstream outputFile(filename);
 	if(outputFile.is_open())
 		outputFile << ppmData;
 	outputFile.flush();
 	outputFile.close();
 
+	ThrowIfOutputFailed(outputFile);
 }
 
 std::filesystem::path PPMFile::GetAbsoluteFilePath(std::filesystem::path filePath)
@@ -83,7 +72,7 @@ bool PPMFile::DoesFilePathExist(std::filesystem::path filePath)
 	return std::filesystem::is_regular_file(filePath) && std::filesystem::exists(filePath);
 }
 
-void PPMFile::AppendCopyNumberToFile(std::filesystem::path& filePath)
+void PPMFile::AppendCopyNumberToFilename(std::filesystem::path& filePath)
 {
 	int copyNumber = 1;
 	while(true)
@@ -100,9 +89,35 @@ void PPMFile::AppendCopyNumberToFile(std::filesystem::path& filePath)
 	}
 }
 
-std::string PPMFile::CreatePPMHeader(RasterDisplay* rasterDisplay)
+std::string PPMFile::BuildPPMData(RasterDisplay& rasterDisplay)
 {
-	std::string rasterWidth = std::to_string(rasterDisplay->GetWidth());
-	std::string rasterHeight = std::to_string(rasterDisplay->GetHeight());
+	std::string ppmData;
+	ppmData += CreatePPMHeader(rasterDisplay);
+	
+	for(int i = 0; i < rasterDisplay.GetHeight(); i++)
+	{
+		for(int j = 0; j < rasterDisplay.GetWidth(); j++)
+		{
+			Color pixel;
+			pixel = rasterDisplay.GetPixel({j, i});
+			ppmData += std::to_string(pixel.GetRed()) + " " +
+				std::to_string(pixel.GetBlue()) + " " +
+				std::to_string(pixel.GetGreen()) + "\n";
+		}
+	}
+
+	return ppmData;
+}
+
+std::string PPMFile::CreatePPMHeader(RasterDisplay& rasterDisplay)
+{
+	std::string rasterWidth = std::to_string(rasterDisplay.GetWidth());
+	std::string rasterHeight = std::to_string(rasterDisplay.GetHeight());
 	return "P3 " + rasterWidth + " " + rasterHeight + " 255\n";
+}
+
+void PPMFile::ThrowIfOutputFailed(std::ofstream& outputFile)
+{
+	if(!outputFile)
+		throw std::runtime_error("There was an error writing to the output file.");
 }
