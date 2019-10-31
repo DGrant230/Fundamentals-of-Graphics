@@ -12,13 +12,12 @@ private:
 
 public:
 	PPMFile() = delete;
-	PPMFile(std::string filename);
 	static PPMFile CreatePPMFile(std::string filename);
-	static PPMFile ReadPPMFile(std::string filename);
+	static RasterDisplay ReadPPMFile(std::string filename);
 	void WriteFromRasterDisplay(RasterDisplay& rasterDisplay);
-	RasterDisplay ReadIntoRasterDisplay();
 	
 private:
+	PPMFile(std::string filename);
 	static std::filesystem::path GetAbsoluteFilePath(std::filesystem::path filePath);
 	static std::filesystem::path GetDirectoryPath(std::filesystem::path filePath);
 	static bool DoesDirectoryPathExist(std::filesystem::path directoryPath);
@@ -29,6 +28,8 @@ private:
 	static void AppendCopyNumberToFilename(std::filesystem::path& filePath);
 	static std::string BuildPPMData(RasterDisplay& rasterDisplay);
 	static std::string CreatePPMHeader(RasterDisplay& rasterDisplay);
+	static std::string GetPixelData(RasterDisplay& rasterDisplay);
 	static void ThrowIfOutputFailed(std::ofstream& outputFile);
+	static RasterDisplay CreateRasterDisplayFromFile(std::ifstream& inputFile);
 };
 #endif

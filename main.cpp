@@ -9,23 +9,7 @@
 #include <fstream>
 #include <iostream>
 
-void PrintRowOrder(RasterDisplay rasterDisplay, std::ofstream* file)
-{
-	printf("#Printing Row Order\n\n");
-	for(int i = 0; i < rasterDisplay.GetWidth(); i++)
-	{
-		for(int j = 0; j < rasterDisplay.GetHeight(); j++)
-		{
-			Color pixel;
-			pixel = rasterDisplay.GetPixel({i, j});
-			*file << std::to_string(pixel.GetRed()) << " " << 
-				std::to_string(pixel.GetBlue()) << " " << 
-				std::to_string(pixel.GetGreen()) << "\n";
-		}
-	}
-}
-
-void PrintColumnOrder(RasterDisplay rasterDisplay, std::ofstream* file)
+void PrintColumnOrder(RasterDisplay rasterDisplay)
 {
 	printf("#Printing Column Order\n\n");
 	for(int i = 0; i < rasterDisplay.GetHeight(); i++)
@@ -34,28 +18,15 @@ void PrintColumnOrder(RasterDisplay rasterDisplay, std::ofstream* file)
 		{
 			Color pixel;
 			pixel = rasterDisplay.GetPixel({j, i});
-			*file << std::to_string(pixel.GetRed()) << " " <<
-				std::to_string(pixel.GetBlue()) << " " <<
-				std::to_string(pixel.GetGreen()) << "\n";
+			std::cout << std::to_string(pixel.GetRed()) << " " <<
+				std::to_string(pixel.GetGreen()) << " " <<
+				std::to_string(pixel.GetBlue()) << "\n";
 		}
 	}
 }
 
 int main(int argc, char* argv[])
 {
-	bool useRowOrder = false;
-	
-	if(argc > 1)
-	{
-		for(int i = 1; i < argc; i++)
-		{
-			if(strcmp(argv[i], "ro") == 0)
-			{
-				useRowOrder = true;
-			}
-		}
-	}
-
 	int x0 = 0, y0 = 0, 
 		x1 = 0, y1 = 19, 
 		x2 = 19, y2 = 0,
@@ -72,7 +43,25 @@ int main(int argc, char* argv[])
 	rasterizer.DrawLine({x0, y0}, {x5, y5}, {255, 255, 0});  	// Steeper line+
 	rasterizer.DrawLine({x1, y1}, {x4, y4}, {255, 0, 255});  	// Steeper line-
 	
-	PPMFile ppmFile = PPMFile::CreatePPMFile("./");
-	ppmFile.WriteFromRasterDisplay(rasterDisplay);
+	// PPMFile ppmFile = PPMFile::CreatePPMFile("_TestPPMFile");
+	// ppmFile.WriteFromRasterDisplay(rasterDisplay);
+
+	try{
+		RasterDisplay inDisplay = PPMFile::ReadPPMFile("");
+	}
+	catch(const std::runtime_error& e)
+	{
+		std::cout << e.what();
+	}
+
+	try{
+		RasterDisplay inDisplay = PPMFile::ReadPPMFile("_TestPPMFile");
+		PrintColumnOrder(inDisplay);
+	}
+	catch(const std::runtime_error& e)
+	{
+		std::cout << e.what();
+	}
+
 	return 0;
 }
