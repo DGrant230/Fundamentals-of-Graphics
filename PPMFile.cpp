@@ -139,8 +139,8 @@ std::string PPMFile::GetPixelData(RasterDisplay& rasterDisplay)
 			Color pixel;
 			pixel = rasterDisplay.GetPixel({j, i});
 			pixelData += std::to_string(pixel.GetRed()) + " " +
-				std::to_string(pixel.GetBlue()) + " " +
-				std::to_string(pixel.GetGreen()) + "\n";
+				std::to_string(pixel.GetGreen()) + " " +
+				std::to_string(pixel.GetBlue()) + "\n";
 		}
 	}
 

@@ -1,6 +1,7 @@
 #include "Rasterizer.h"
 #include <math.h>
 #include <algorithm>
+#include <stdexcept>
 
 Rasterizer::Rasterizer(RasterDisplay* rasterDisplay) : rasterDisplay(rasterDisplay) { }
 
@@ -69,4 +70,23 @@ void Rasterizer::DrawLine(Vector2Int startCoordinate, Vector2Int endCoordinate, 
 			error += abs(dx);
 		}
 	}
+}
+
+void Rasterizer::DrawConnectingLine(std::vector<Vector2Int> coordinates, Color color)
+{
+	if(coordinates.size() < 2)
+		throw std::runtime_error("Cannot draw line(s): Less than 2 coordinate points.");
+
+	for(int i = 0; i < coordinates.size() - 1; i++)
+		DrawLine(coordinates[i], coordinates[i + 1]);
+}
+
+void Rasterizer::DrawPolygon(std::vector<Vector2Int> coordinates, Color color)
+{
+	if(coordinates.size() < 3)
+		throw std::runtime_error("Cannot draw polygon: Less than 3 coordinate points.");
+
+	DrawConnectingLine(coordinates, color);
+
+	DrawLine(coordinates.front(), coordinates.back());
 }

@@ -22,6 +22,7 @@ public:
 	int GetHeight();
 	void SetPixel(Vector2Int coordinate, Color color = { 255, 255, 255 });
 	Color GetPixel (Vector2Int coordinate);
+	void Print();
 		
 private:
 	void ThrowIfCoordinateIsOff(Vector2Int coordinate);

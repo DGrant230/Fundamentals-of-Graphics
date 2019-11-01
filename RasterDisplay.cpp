@@ -1,10 +1,7 @@
 #include "RasterDisplay.h"
-#include <assert.h>
-#include <math.h>
-#include <stdio.h>
-#include <algorithm>
 #include <stdexcept>
 #include <string>
+#include <iostream>
 
 RasterDisplay::RasterDisplay(int width, int height) : width(width), height(height), pixels(new Color[width * height]) { }
 
@@ -32,6 +29,21 @@ Color RasterDisplay::GetPixel (Vector2Int coordinate)
 	int x = coordinate.x;
 	int y = coordinate.y;
 	return pixels[width * x + y];
+}
+
+void RasterDisplay::Print()
+{
+	for(int y = 0; y < height; y++)
+		for(int x = 0; x < width; x++)
+		{
+			std::string coordinate("(" + std::to_string(x) + ", " + std::to_string(y) +"): ");
+			Color pixel = GetPixel({x, y});
+			std::string red = std::to_string(pixel.GetRed());
+			std::string green = std::to_string(pixel.GetGreen());
+			std::string blue = std::to_string(pixel.GetBlue());
+			std::string color(red + " " + green + " " + blue);
+			std::cout << coordinate << color << std::endl; 
+		}
 }
 
 void RasterDisplay::ThrowIfCoordinateIsOff(Vector2Int coordinate)
