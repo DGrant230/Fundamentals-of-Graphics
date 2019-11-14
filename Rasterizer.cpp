@@ -90,3 +90,38 @@ void Rasterizer::DrawPolygon(std::vector<Vector2Int> coordinates, Color color)
 
 	DrawLine(coordinates.front(), coordinates.back());
 }
+
+void Rasterizer::DrawCircle(Vector2Int centerCoordinate, unsigned int radius, Color color)
+{	
+	int x = 0;
+	int y = radius;
+	int p = 1 - radius;
+	while(x < y)
+	{
+		DrawCircleOctantReflections(centerCoordinate, {x, y}, color);
+		x++;
+		if(p < 0)
+			p+= 2 * x + 1;
+		else
+		{
+			y--;
+			p += 2 * (x - y) + 1;
+		}
+	}
+}
+
+void Rasterizer::DrawCircleOctantReflections(Vector2Int centerCoordinate, Vector2Int offset, Color color)
+{
+		int xCenter = centerCoordinate.x;
+		int yCenter = centerCoordinate.y;
+		int x = offset.x;
+		int y = offset.y;
+		rasterDisplay->SetPixel({xCenter + x, yCenter + y}, color);
+		rasterDisplay->SetPixel({xCenter + x, yCenter - y}, color);
+		rasterDisplay->SetPixel({xCenter - x, yCenter + y}, color);
+		rasterDisplay->SetPixel({xCenter - x, yCenter - y}, color);
+		rasterDisplay->SetPixel({xCenter + y, yCenter + x}, color);
+		rasterDisplay->SetPixel({xCenter + y, yCenter - x}, color);
+		rasterDisplay->SetPixel({xCenter - y, yCenter + x}, color);
+		rasterDisplay->SetPixel({xCenter - y, yCenter - x}, color);
+}

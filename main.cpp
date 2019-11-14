@@ -36,34 +36,12 @@ int main(int argc, char* argv[])
 		
 	RasterDisplay rasterDisplay = { 20, 20 };
 	Rasterizer rasterizer = { &rasterDisplay };
-	// rasterizer.DrawLine({x0, y0}, {x1, y1}, {255, 0, 0});		// Vertical line
-	// rasterizer.DrawLine({x0, y0}, {x2, y2}, {0, 255, 0});  	// Horizontal line
-	// rasterizer.DrawLine({x0, y0}, {x3, y3}, {0, 0, 255});  	// Diagonal line
-	// rasterizer.DrawLine({x0, y0}, {x4, y4}, {255, 255, 255});  // Flatter line+
-	// rasterizer.DrawLine({x0, y0}, {x5, y5}, {255, 255, 0});  	// Steeper line+
-	// rasterizer.DrawLine({x1, y1}, {x4, y4}, {255, 0, 255});  	// Steeper line-
-	
-	rasterizer.DrawConnectingLine({{x0, y0}, {x1, y1}});
+
+	rasterizer.DrawCircle({10, 10}, 4);
 
 	PPMFile ppmFile = PPMFile::CreatePPMFile("_Test");
 	ppmFile.WriteFromRasterDisplay(rasterDisplay);
 
-	std::vector<Vector2Int> collection = {
-		{x0, y0}, 
-		{x1, y1},
-		{x2, y2},
-		{x3, y3},
-		{x4, y4},
-		{x5, y5}
-	};
-
-	rasterizer.DrawConnectingLine(collection);
-	ppmFile = PPMFile::CreatePPMFile("_Test");
-	ppmFile.WriteFromRasterDisplay(rasterDisplay);
-
-	rasterizer.DrawPolygon(collection);
-	ppmFile = PPMFile::CreatePPMFile("_Test");
-	ppmFile.WriteFromRasterDisplay(rasterDisplay);
 
 	return 0;
 }
