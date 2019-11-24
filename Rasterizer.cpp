@@ -96,7 +96,7 @@ void Rasterizer::DrawCircle(Vector2Int centerCoordinate, unsigned int radius, Co
 	int x = 0;
 	int y = radius;
 	int p = 1 - radius;
-	while(x < y)
+	while(x <= y)
 	{
 		DrawCircleOctantReflections(centerCoordinate, {x, y}, color);
 		x++;
