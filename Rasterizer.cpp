@@ -91,8 +91,9 @@ void Rasterizer::DrawPolygon(std::vector<Vector2Int> coordinates, Color color)
 	DrawLine(coordinates.front(), coordinates.back());
 }
 
-void Rasterizer::DrawCircle(Vector2Int centerCoordinate, unsigned int radius, Color color)
+void Rasterizer::DrawCircle(Vector2Int centerCoordinate, int radius, Color color)
 {	
+	radius = abs(radius);
 	int x = 0;
 	int y = radius;
 	int p = 1 - radius;
@@ -110,6 +111,55 @@ void Rasterizer::DrawCircle(Vector2Int centerCoordinate, unsigned int radius, Co
 	}
 }
 
+void Rasterizer::DrawEllipse(Vector2Int centerCoordinate, int widthRadius, int heightRadius, Color color)
+{
+	if(widthRadius == heightRadius)
+	{
+		DrawCircle(centerCoordinate, widthRadius, color);
+		return;
+	}
+
+	widthRadius = abs(widthRadius);
+	heightRadius = abs(heightRadius);
+	int widthRadiusSquared = widthRadius * widthRadius;
+	int heightRadiusSquared = heightRadius * heightRadius;
+	float px = heightRadiusSquared - widthRadiusSquared * heightRadius + 0.25f * widthRadiusSquared;
+	float py = widthRadiusSquared - heightRadiusSquared * widthRadius + 0.25f * heightRadiusSquared;
+	printf("PX: %f\n", px);
+	printf("PY: %f\n", py);
+	int x0 = 0;
+	int y0 = heightRadius;
+	int x1 = widthRadius;
+	int y1 = 0;
+	
+	
+	while(x0 <= x1 || y0 >= y1)
+	{
+		DrawEllipseOctantReflections(centerCoordinate, {x0, y0}, color);
+
+		if(px < 0)
+			px += 2 * heightRadiusSquared * x0 + 3 * heightRadiusSquared;
+		else
+		{
+			px += 2 * heightRadiusSquared * x0 + 3 * heightRadiusSquared - 2 * widthRadiusSquared * y0 + 2 * widthRadiusSquared;
+			y0--;
+		}
+		x0++;
+		printf("PX: %f\n", px);
+
+		DrawEllipseOctantReflections(centerCoordinate, {x1, y1}, color);
+		if(py < 0)
+			py += 2 * widthRadiusSquared * y1 + 3 * widthRadiusSquared;
+		else
+		{
+			py += 2 * widthRadiusSquared * y1 + 3 * widthRadiusSquared - 2 * heightRadiusSquared * x1 + 2 * heightRadiusSquared;
+			x1--;	
+		}
+		y1++;
+		printf("PY: %f\n", py);
+	}
+}
+
 void Rasterizer::DrawCircleOctantReflections(Vector2Int centerCoordinate, Vector2Int offset, Color color)
 {
 		int xCenter = centerCoordinate.x;
@@ -124,4 +174,16 @@ void Rasterizer::DrawCircleOctantReflections(Vector2Int centerCoordinate, Vector
 		rasterDisplay->SetPixel({xCenter + y, yCenter - x}, color);
 		rasterDisplay->SetPixel({xCenter - y, yCenter + x}, color);
 		rasterDisplay->SetPixel({xCenter - y, yCenter - x}, color);
+}
+
+void Rasterizer::DrawEllipseOctantReflections(Vector2Int centerCoordinate, Vector2Int offset, Color color)
+{
+	int xCenter = centerCoordinate.x;
+	int yCenter = centerCoordinate.y;
+	int x = offset.x;
+	int y = offset.y;
+	rasterDisplay->SetPixel({xCenter + x, yCenter + y}, color);
+	rasterDisplay->SetPixel({xCenter + x, yCenter - y}, color);
+	rasterDisplay->SetPixel({xCenter - x, yCenter + y}, color);
+	rasterDisplay->SetPixel({xCenter - x, yCenter - y}, color);
 }

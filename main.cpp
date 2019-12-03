@@ -37,8 +37,13 @@ int main(int argc, char* argv[])
 	RasterDisplay rasterDisplay = { 20, 20 };
 	Rasterizer rasterizer = { &rasterDisplay };
 
-	rasterizer.DrawCircle({10, 10}, 4);
-
+	try{
+		rasterizer.DrawEllipse({10, 10}, 12, 6);
+	}
+	catch(std::exception& e)
+	{
+		printf("%s", e.what());
+	}
 	PPMFile ppmFile = PPMFile::CreatePPMFile("_Test");
 	ppmFile.WriteFromRasterDisplay(rasterDisplay);
 
