@@ -97,9 +97,24 @@ void Rasterizer::DrawCircle(Vector2Int centerCoordinate, int radius, Color color
 	int x = 0;
 	int y = radius;
 	int p = 1 - radius;
+
+	auto DrawCircleOctantReflections = [&]()
+	{
+		int xCenter = centerCoordinate.x;
+		int yCenter = centerCoordinate.y;
+		rasterDisplay->SetPixel({xCenter + x, yCenter + y}, color);
+		rasterDisplay->SetPixel({xCenter + x, yCenter - y}, color);
+		rasterDisplay->SetPixel({xCenter - x, yCenter + y}, color);
+		rasterDisplay->SetPixel({xCenter - x, yCenter - y}, color);
+		rasterDisplay->SetPixel({xCenter + y, yCenter + x}, color);
+		rasterDisplay->SetPixel({xCenter + y, yCenter - x}, color);
+		rasterDisplay->SetPixel({xCenter - y, yCenter + x}, color);
+		rasterDisplay->SetPixel({xCenter - y, yCenter - x}, color);
+	};
+
 	while(x <= y)
 	{
-		DrawCircleOctantReflections(centerCoordinate, {x, y}, color);
+		DrawCircleOctantReflections();
 		x++;
 		if(p < 0)
 			p+= 2 * x + 1;
@@ -122,22 +137,38 @@ void Rasterizer::DrawEllipse(Vector2Int centerCoordinate, int widthRadius, int h
 	widthRadius = abs(widthRadius);
 	heightRadius = abs(heightRadius);
 	int widthRadiusSquared = widthRadius * widthRadius;
-	int heightRadiusSquared = heightRadius * heightRadius;
-	float px = heightRadiusSquared - widthRadiusSquared * heightRadius + 0.25f * widthRadiusSquared;
-	float py = widthRadiusSquared - heightRadiusSquared * widthRadius + 0.25f * heightRadiusSquared;
-	printf("PX: %f\n", px);
-	printf("PY: %f\n", py);
+	int heightRadiusSquared = heightRadius * heightRadius;	
+	int px = round(heightRadiusSquared - widthRadiusSquared * heightRadius + 0.25f * widthRadiusSquared);
+	int py = round(widthRadiusSquared - heightRadiusSquared * widthRadius + 0.25f * heightRadiusSquared);
 	int x0 = 0;
 	int y0 = heightRadius;
 	int x1 = widthRadius;
 	int y1 = 0;
-	
-	
-	while(x0 <= x1 || y0 >= y1)
-	{
-		DrawEllipseOctantReflections(centerCoordinate, {x0, y0}, color);
 
-		if(px < 0)
+	auto IsWithinRegion1 = [&](int x, int y)
+	{	
+		return 2 * heightRadiusSquared * x <  2 * widthRadiusSquared * y;
+	};
+
+	auto IsInsideEllipseBoundary = [&](int p)
+	{
+		return p < 0;
+	};
+
+	auto DrawEllipseOctantReflections = [&](int x, int y)
+	{
+		int xCenter = centerCoordinate.x;
+		int yCenter = centerCoordinate.y;
+		rasterDisplay->SetPixel({xCenter + x, yCenter + y}, color);
+		rasterDisplay->SetPixel({xCenter + x, yCenter - y}, color);
+		rasterDisplay->SetPixel({xCenter - x, yCenter + y}, color);
+		rasterDisplay->SetPixel({xCenter - x, yCenter - y}, color);
+	};
+
+	while(IsWithinRegion1(x0, y0))
+	{
+		DrawEllipseOctantReflections(x0, y0);
+		if(IsInsideEllipseBoundary(px))
 			px += 2 * heightRadiusSquared * x0 + 3 * heightRadiusSquared;
 		else
 		{
@@ -145,10 +176,12 @@ void Rasterizer::DrawEllipse(Vector2Int centerCoordinate, int widthRadius, int h
 			y0--;
 		}
 		x0++;
-		printf("PX: %f\n", px);
+	}
 
-		DrawEllipseOctantReflections(centerCoordinate, {x1, y1}, color);
-		if(py < 0)
+	while(!IsWithinRegion1(x1, y1))
+	{
+		DrawEllipseOctantReflections(x1, y1);
+		if(IsInsideEllipseBoundary(py))
 			py += 2 * widthRadiusSquared * y1 + 3 * widthRadiusSquared;
 		else
 		{
@@ -156,34 +189,5 @@ void Rasterizer::DrawEllipse(Vector2Int centerCoordinate, int widthRadius, int h
 			x1--;	
 		}
 		y1++;
-		printf("PY: %f\n", py);
 	}
-}
-
-void Rasterizer::DrawCircleOctantReflections(Vector2Int centerCoordinate, Vector2Int offset, Color color)
-{
-		int xCenter = centerCoordinate.x;
-		int yCenter = centerCoordinate.y;
-		int x = offset.x;
-		int y = offset.y;
-		rasterDisplay->SetPixel({xCenter + x, yCenter + y}, color);
-		rasterDisplay->SetPixel({xCenter + x, yCenter - y}, color);
-		rasterDisplay->SetPixel({xCenter - x, yCenter + y}, color);
-		rasterDisplay->SetPixel({xCenter - x, yCenter - y}, color);
-		rasterDisplay->SetPixel({xCenter + y, yCenter + x}, color);
-		rasterDisplay->SetPixel({xCenter + y, yCenter - x}, color);
-		rasterDisplay->SetPixel({xCenter - y, yCenter + x}, color);
-		rasterDisplay->SetPixel({xCenter - y, yCenter - x}, color);
-}
-
-void Rasterizer::DrawEllipseOctantReflections(Vector2Int centerCoordinate, Vector2Int offset, Color color)
-{
-	int xCenter = centerCoordinate.x;
-	int yCenter = centerCoordinate.y;
-	int x = offset.x;
-	int y = offset.y;
-	rasterDisplay->SetPixel({xCenter + x, yCenter + y}, color);
-	rasterDisplay->SetPixel({xCenter + x, yCenter - y}, color);
-	rasterDisplay->SetPixel({xCenter - x, yCenter + y}, color);
-	rasterDisplay->SetPixel({xCenter - x, yCenter - y}, color);
 }

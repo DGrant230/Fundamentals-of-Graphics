@@ -16,7 +16,5 @@ public:
 	void DrawEllipse(Vector2Int centerCoordinate, int widthRadius, int heightRadius, Color color = { 255, 255, 255 });
 private:
 	RasterDisplay* rasterDisplay;
-	void DrawCircleOctantReflections(Vector2Int centerCoordinate, Vector2Int offset, Color color);
-	void DrawEllipseOctantReflections(Vector2Int centerCoordinate, Vector2Int offset, Color color);
 };
 #endif

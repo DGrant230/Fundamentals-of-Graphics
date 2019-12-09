@@ -34,11 +34,11 @@ int main(int argc, char* argv[])
 		x4 = 10, y4 = 7,
 		x5 = 7, y5 = 10;
 		
-	RasterDisplay rasterDisplay = { 20, 20 };
+	RasterDisplay rasterDisplay = { 100, 100 };
 	Rasterizer rasterizer = { &rasterDisplay };
 
 	try{
-		rasterizer.DrawEllipse({10, 10}, 12, 6);
+		rasterizer.DrawEllipse({50, 50}, 8, 6);
 	}
 	catch(std::exception& e)
 	{
